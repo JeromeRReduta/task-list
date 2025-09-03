@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 
+const numSaltRounds = 10;
+
 export default class PgUserRepo {
   #db;
 
@@ -96,6 +98,35 @@ export default class PgUserRepo {
     if (!hasMatchingPassword) {
       return null;
     }
+    return user;
+  }
+
+  async createAsync({ username, password }) {
+    const hash = await bcrypt.hash(password, numSaltRounds);
+    const {
+      rows: [user],
+    } = await this.#db.query({
+      text: `
+            INSERT INTO users (username, password)
+            VALUES ($1, $2)
+            RETURNING *
+            `,
+      values: [username, hash],
+    });
+    return user;
+  }
+
+  async deleteByIdAsync({ id }) {
+    const {
+      rows: [user],
+    } = await this.#db.query({
+      text: `
+            DELETE FROM users
+            WHERE id = $1
+            RETURNING *
+        `,
+      values: [id],
+    });
     return user;
   }
 }
