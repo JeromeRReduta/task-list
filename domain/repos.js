@@ -16,6 +16,7 @@
  * TaskRepo
  * + getAllAsync(): Task[]
  * + getByIdAsync({id}): Task
+ * + createAsync({title, done}): Task
  * + updateByIdAsync({id, title, done}): Task
  * + deleteByIdAsync({id}): Task
  */
