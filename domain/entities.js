@@ -17,7 +17,7 @@ export function createUser({ id, username, password }) {
  * @property {Task[]} tasks
  */
 
-export function createUser({ id, username, password, tasks }) {
+export function createUserWithTasks({ id, username, password, tasks }) {
   return { id, username, password, tasks };
 }
 

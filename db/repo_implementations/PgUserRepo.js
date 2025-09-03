@@ -10,14 +10,14 @@ export default class PgUserRepo {
   }
 
   async getAllAsync() {
-    const { rows: users } = await this.#db.query({
+    const { rows } = await this.#db.query({
       text: `SELECT * FROM users`,
     });
-    return users;
+    return rows.map((row) => mapPostgresToUser({ postgres: row }));
   }
 
   async getAllWithTasksAsync() {
-    const { rows: users } = await this.#db.query({
+    const { rows } = await this.#db.query({
       text: `
         SELECT u.*, JSON_AGG(t.*) AS tasks
         FROM users AS u
@@ -26,12 +26,12 @@ export default class PgUserRepo {
         ORDER BY u.id
         `,
     });
-    return users;
+    return rows.map((row) => mapPostgresToUserWithTasks({ postgres: row }));
   }
 
   async getByIdAsync({ id }) {
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
         SELECT * FROM users
@@ -39,12 +39,12 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
-    return user;
+    return mapPostgresToUser({ postgres: row });
   }
 
   async getByIdWithTasksAsync({ id }) {
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
         SELECT u.*, JSON_AGG(t.*) AS tasks
@@ -55,12 +55,12 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
-    return user;
+    return mapPostgresToUserWithTasks({ postgres: row });
   }
 
   async getByLoginInfoAsync({ loginInfo: { username, password } }) {
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
         SELECT * FROM users
@@ -68,19 +68,19 @@ export default class PgUserRepo {
         `,
       values: [username],
     });
-    if (!user) {
+    if (!row) {
       return null;
     }
-    const hasMatchingPassword = await bcrypt.compare(password, user.password);
+    const hasMatchingPassword = await bcrypt.compare(password, row.password);
     if (!hasMatchingPassword) {
       return null;
     }
-    return user;
+    return mapPostgresToUser({ postgres: row });
   }
 
   async getByLoginInfoWithTasksAsync({ loginInfo: { username, password } }) {
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
         SELECT u.*, JSON_AGG(t.*) AS tasks
@@ -91,20 +91,20 @@ export default class PgUserRepo {
         `,
       values: [username],
     });
-    if (!user) {
+    if (!row) {
       return null;
     }
-    const hasMatchingPassword = await bcrypt.compare(password, user.password);
+    const hasMatchingPassword = await bcrypt.compare(password, row.password);
     if (!hasMatchingPassword) {
       return null;
     }
-    return user;
+    return mapPostgresToUser({ postgres: row });
   }
 
   async createAsync({ username, password }) {
     const hash = await bcrypt.hash(password, numSaltRounds);
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
             INSERT INTO users (username, password)
@@ -113,12 +113,12 @@ export default class PgUserRepo {
             `,
       values: [username, hash],
     });
-    return user;
+    return mapPostgresToUser({ postgres: row });
   }
 
   async deleteByIdAsync({ id }) {
     const {
-      rows: [user],
+      rows: [row],
     } = await this.#db.query({
       text: `
             DELETE FROM users
@@ -127,6 +127,16 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
-    return user;
+    return mapPostgresToUser({ postgres: row });
   }
+}
+
+export function mapPostgresToUser({ postgres: { id, username, password } }) {
+  return createUser({ id, username, password });
+}
+
+export function mapPostgresToUserWithTasks({
+  postgres: { id, username, password, tasks },
+}) {
+  return createUserWithTracks({ id, username, password, tasks });
 }
