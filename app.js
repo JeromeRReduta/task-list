@@ -1,6 +1,21 @@
 import express from "express";
+import db from "#db/client";
+import PgUserRepo from "#db/repo_implementations/PgUserRepo";
+import PgTaskRepo from "#db/repo_implementations/PgTaskRepo";
+import sanityCheckForRepos from "#middleware/sanityCheckForRepos";
+import userRouter from "#middleware/routing/users";
+
 const app = express();
-export default app;
+app.use(express.json());
+app.use((req, res, next) => {
+  req.userRepo = new PgUserRepo({ pgClient: db });
+  req.taskRepo = new PgTaskRepo({ pgClient: db });
+  next();
+});
+app.use(sanityCheckForRepos);
+
+app.use("/users", userRouter);
+// app.use("/tasks", taskRouter);
 
 app.use((err, req, res, next) => {
   switch (err.code) {
@@ -21,3 +36,5 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send("Sorry! Something went wrong.");
 });
+
+export default app;

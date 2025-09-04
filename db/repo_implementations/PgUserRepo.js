@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { createUser } from "#domain/entities";
 
 const numSaltRounds = 10;
 
