@@ -1,3 +1,4 @@
+import { createTask } from "#domain/entities";
 export default class TaskRepo {
   #db;
 
@@ -31,6 +32,9 @@ export default class TaskRepo {
             WHERE id = $1`,
       values: [id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToTask({ postgres: row });
   }
 
@@ -45,6 +49,9 @@ export default class TaskRepo {
                 `,
       values: [title, done, userId],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToTask({ postgres: row });
   }
 
@@ -61,6 +68,9 @@ export default class TaskRepo {
             `,
       values: [title, done, id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToTask({ postgres: row });
   }
 
@@ -75,6 +85,9 @@ export default class TaskRepo {
         `,
       values: [id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToTask({ postgres: row });
   }
 }

@@ -40,6 +40,9 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToUser({ postgres: row });
   }
 
@@ -56,6 +59,9 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToUserWithTasks({ postgres: row });
   }
 
@@ -114,6 +120,9 @@ export default class PgUserRepo {
             `,
       values: [username, hash],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToUser({ postgres: row });
   }
 
@@ -128,6 +137,9 @@ export default class PgUserRepo {
         `,
       values: [id],
     });
+    if (!row) {
+      return null;
+    }
     return mapPostgresToUser({ postgres: row });
   }
 }

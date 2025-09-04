@@ -4,6 +4,7 @@ import PgUserRepo from "#db/repo_implementations/PgUserRepo";
 import PgTaskRepo from "#db/repo_implementations/PgTaskRepo";
 import sanityCheckForRepos from "#middleware/sanityCheckForRepos";
 import userRouter from "#middleware/routing/users";
+import taskRouter from "#middleware/routing/tasks";
 
 const app = express();
 app.use(express.json());
@@ -15,7 +16,7 @@ app.use((req, res, next) => {
 app.use(sanityCheckForRepos);
 
 app.use("/users", userRouter);
-// app.use("/tasks", taskRouter);
+app.use("/tasks", taskRouter);
 
 app.use((err, req, res, next) => {
   switch (err.code) {
